@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Lanyard Demo</title>
+        <link href="demo.css" media="screen" rel="stylesheet" type="text/css"/>
+        <script src="lanyard.js"></script>
+        <script id="shader-fs" type="x-shader/x-fragment">
+            #ifdef GL_ES
+                precision highp float;
+            #endif
+
+            uniform sampler2D uSamplerTileImage;
+            uniform sampler2D uSamplerAlphaMask;
+
+            varying vec4 vTextureCoord0;
+            varying vec4 vTextureCoord1;
+
+            void main (void) {
+                vec4 tileColor = texture2D(uSamplerTileImage, vec2(vTextureCoord0.s, vTextureCoord0.t));
+                vec4 alphaColor = texture2D(uSamplerAlphaMask, vec2(vTextureCoord1.s, vTextureCoord1.t));
+
+                gl_FragColor = vec4(tileColor.rgba);
+            }
+        </script>
+        <script id="shader-vs" type="x-shader/x-vertex">
+            uniform mat4 uPMatrix;
+            uniform mat4 uMVMatrix;
+            uniform mat4 uTextureMatrix;
+
+            attribute vec4 aTextureCoord0;
+            attribute vec4 aTextureCoord1;
+            attribute vec3 aVertexPosition;
+
+            varying vec4 vTextureCoord0;
+            varying vec4 vTextureCoord1;
+
+            void main(void) {
+                vTextureCoord0 = uTextureMatrix * aTextureCoord0;
+                vTextureCoord1 = uTextureMatrix * aTextureCoord1;
+
+                gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+            }
+        </script>
+    </head>
+    <body>
+        <div class="column-container">
+           <div class="layer-list-column">
+                <!-- Layer list start -->
+                <fieldset>
+                    <legend>Layers</legend>
+                    <div id="lanyard-demo-layer-list"></div>
+                </fieldset>
+                <!-- Layer list end -->
+            </div>
+            <div class="map-canvas-column">
+                <!-- Map canvas start -->
+                <fieldset>
+                    <legend>Lanyard Demo</legend>
+                    <canvas id="lanyard-demo-canvas" width="525" height="400">
+                        Your browser doesn't appear to support the HTML5 canvas element.
+                    </canvas>
+                </fieldset>
+                <!-- Map canvas end -->
+            </div>
+            <div class="map-status-column">
+                <!-- Map status start -->
+                <fieldset>
+                    <legend>Status</legend>
+                    <div>lat = <span id="lanyard-status-bar-lat"></span></div>
+                    <div>lon = <span id="lanyard-status-bar-lon"></span></div>
+                    <div>ele = <span id="lanyard-status-bar-ele"></span></div>
+                </fieldset>
+                <!-- Map status end -->
+            </div>
+            <div class="map-console-column">
+                <!-- Map console start -->
+                <fieldset>
+                    <legend>Event Log</legend>
+                    <div id="lanyard-demo-log"></div>
+                </fieldset>
+                <!-- Map console end -->
+            </div>
+        </div>
+        <script>
+            var basicDemo = new lanyard.demo.BasicDemo(
+                document.getElementById("lanyard-demo-canvas"),
+                document.getElementById("lanyard-demo-layer-list"),
+                document.getElementById("lanyard-demo-log")
+            );
+            basicDemo.run();
+
+            // Show an example of how to use (position) listeners.
+            basicDemo.addStatusBar(
+                new lanyard.demo.StatusBar(
+                    document.getElementById("lanyard-status-bar-lat"),
+                    document.getElementById("lanyard-status-bar-lon"),
+                    document.getElementById("lanyard-status-bar-ele")
+                )
+            );
+        </script>
+    </body>
+</html>
